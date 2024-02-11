@@ -1,9 +1,12 @@
 import numpy as np
 import cv2
 
+# initial function for calling trackerbar
 def hello(x):
+    # only for reference
     print("")
 
+# initialization camera
 cap = cv2.VideoCapture(0)
 bars = cv2.namedWindow("bars")
 
@@ -14,16 +17,20 @@ cv2.createTrackbar("lower_hue","bars",68,180,hello)
 cv2.createTrackbar("lower_saturation","bars",55,255,hello)
 cv2.createTrackbar("lower_value","bars",54,255,hello)
 
+# capture the initial frame for creation of background
 while True:
     cv2.waitKey(1000)
     ret, init_frame = cap.read()
+    # check if frame is returned then break
     if ret:
         break
 
+# start capturing frames for magic
 while True:
     ret, frame = cap.read()
     inspect = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
+    # getting the HSV values for masking the cloak
     upper_hue = cv2.getTrackbarPos("upper_hue","bars")
     upper_saturation = cv2.getTrackbarPos("upper_saturation","bars")
     upper_value = cv2.getTrackbarPos("upper_value","bars")
@@ -31,6 +38,7 @@ while True:
     lower_hue = cv2.getTrackbarPos("lower_hue","bars")
     lower_saturation = cv2.getTrackbarPos("lower_saturation","bars")
 
+    # kernel to be dilation
     kernel = np.ones((3,3),np.uint8)
 
     upper_hsv = np.array([upper_hue,upper_saturation,upper_value])
@@ -41,6 +49,7 @@ while True:
     mask_inv = 255-mask
     mask = cv2.dilate(mask, kernel, 5)
 
+    # mixing the frames
     b = frame[:,:,0]
     g = frame[:,:,1]
     r = frame[:,:,2]
